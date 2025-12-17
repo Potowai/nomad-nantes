@@ -13,14 +13,20 @@ export const ChatView: React.FC<ChatViewProps> = ({ viewState, onBack, onOpenCha
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isDbReady, setIsDbReady] = useState(false);
+  const [dbError, setDbError] = useState<string | null>(null);
   const currentChatId = 'chat_1'; // Hardcoded for single chat demo
 
   useEffect(() => {
     const loadData = async () => {
-      await initDB();
-      setIsDbReady(true);
-      if (viewState === ViewState.CHAT_DETAIL) {
-        setMessages(getMessages(currentChatId));
+      try {
+        await initDB();
+        setIsDbReady(true);
+        if (viewState === ViewState.CHAT_DETAIL) {
+          setMessages(getMessages(currentChatId));
+        }
+      } catch (e) {
+        console.error("DB Init failed:", e);
+        setDbError("Impossible de charger les discussions.");
       }
     };
     loadData();
@@ -48,6 +54,14 @@ export const ChatView: React.FC<ChatViewProps> = ({ viewState, onBack, onOpenCha
       handleSendMessage();
     }
   };
+
+  if (dbError) {
+     return (
+        <div className="h-full flex items-center justify-center bg-white text-gray-500 p-4 text-center">
+            <p>{dbError}</p>
+        </div>
+     );
+  }
 
   if (!isDbReady) {
     return (

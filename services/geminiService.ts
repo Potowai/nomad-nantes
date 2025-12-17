@@ -1,8 +1,20 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Recommendation } from '../types';
 
-// Safely check for API key
-const apiKey = process.env.API_KEY;
+// Safely check for API key without crashing if process is undefined
+const getApiKey = (): string | undefined => {
+  try {
+    // Check if process exists (Node/Bundlers)
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env.API_KEY;
+    }
+  } catch (e) {
+    // Ignore access errors
+  }
+  return undefined;
+};
+
+const apiKey = getApiKey();
 export const isAIEnabled = typeof apiKey === 'string' && apiKey.length > 0;
 
 // Initialize the API client only if key exists
