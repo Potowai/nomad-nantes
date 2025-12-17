@@ -1,0 +1,7 @@
+{
+  "name": "nomad-nantes",
+  "description": "L'application sociale ultime pour les voyageurs solo et digital nomads à Nantes.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
