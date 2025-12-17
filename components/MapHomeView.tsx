@@ -152,6 +152,12 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isListView, setIsListView] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: "Nouveau message", message: 'Marc a rejoint "Apéro coucher de soleil"', time: "Il y a 5 min" },
+    { id: 2, title: "Nouvel événement", message: '"Session Yoga" commence dans 30 min', time: "Il y a 25 min" },
+    { id: 3, title: "Invitation reçue", message: 'Sophie vous invite à "Brunch du dimanche"', time: "Il y a 2h" }
+  ]);
   
   // Search State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -390,8 +396,14 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
     <div className="relative h-full w-full bg-neutral-grey overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-50 px-4 py-4 flex items-center justify-between pointer-events-none">
-        <div className="pointer-events-auto shadow-md rounded-full bg-white p-0.5">
-            <img src={userAvatar} alt="Profile" className="w-9 h-9 rounded-full" />
+        <div className="pointer-events-auto relative group">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary-orange via-purple-500 to-blue-500 rounded-full blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative bg-gradient-to-br from-primary-orange to-purple-500 rounded-full p-2.5 shadow-xl">
+                <User className="w-5 h-5 text-white" strokeWidth={2.5} />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-tr from-orange-400 to-pink-500 rounded-full border-2 border-white flex items-center justify-center">
+                    <span className="text-[8px]">✨</span>
+                </div>
+            </div>
         </div>
         
         <div className="font-bold text-xl tracking-tight text-secondary-dark pointer-events-auto flex items-center gap-1 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full shadow-sm">
@@ -399,9 +411,14 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
         </div>
 
         <div className="flex gap-2 pointer-events-auto">
-            <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm relative text-secondary-dark hover:bg-neutral-50">
+            <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm relative text-secondary-dark hover:bg-neutral-50"
+            >
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-0 right-0 bg-alert-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">3</span>
+                {notifications.length > 0 && (
+                    <span className="absolute top-0 right-0 bg-alert-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">{notifications.length}</span>
+                )}
             </button>
         </div>
       </header>
@@ -464,7 +481,7 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
         )}
       </div>
 
-      <div className={`absolute top-24 right-4 z-40 ${isListView ? 'hidden' : 'block'}`}>
+      <div className={`absolute top-16 right-4 z-40 ${isListView ? 'hidden' : 'block'}`}>
         <button className="bg-white/90 backdrop-blur pl-1 pr-3 py-1 rounded-full shadow-lg border border-slate-100 flex items-center gap-2 hover:bg-white transition-colors">
             <div className="relative w-8 h-8">
                 <img src="https://picsum.photos/seed/traveler/100" className="w-8 h-8 rounded-full border border-white" />
@@ -474,7 +491,6 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
                 <span className="text-xs font-extrabold text-text-main">35 Nomades</span>
                 <span className="text-[10px] text-text-secondary font-medium">À Nantes</span>
             </div>
-            <ChevronRight className="w-3 h-3 text-text-secondary" />
         </button>
       </div>
 
@@ -615,6 +631,54 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
                           Publier l'activité
                       </button>
                   </form>
+              </div>
+          </div>
+      )}
+
+      {/* Notification Panel */}
+      {showNotifications && (
+          <div className="absolute top-16 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] animate-in slide-in-from-top duration-300">
+              <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
+                  <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                      <h3 className="font-bold text-text-main">Notifications</h3>
+                      <button 
+                          onClick={() => setShowNotifications(false)}
+                          className="p-1 bg-gray-100 rounded-full hover:bg-gray-200"
+                      >
+                          <X className="w-4 h-4 text-gray-500" />
+                      </button>
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                      {notifications.length > 0 ? (
+                          notifications.map((notif) => (
+                              <div key={notif.id} className="p-4 border-b border-slate-50 hover:bg-neutral-50 cursor-pointer">
+                                  <div className="flex items-start gap-3">
+                                      <div className="w-2 h-2 bg-alert-red rounded-full mt-2 shrink-0"></div>
+                                      <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-bold text-text-main mb-1">{notif.title}</p>
+                                          <p className="text-xs text-text-secondary">{notif.message}</p>
+                                          <p className="text-xs text-text-tertiary mt-1">{notif.time}</p>
+                                      </div>
+                                  </div>
+                              </div>
+                          ))
+                      ) : (
+                          <div className="p-8 text-center">
+                              <Bell className="w-12 h-12 mx-auto text-gray-300 mb-2" />
+                              <p className="text-sm text-text-secondary">Aucune notification</p>
+                          </div>
+                      )}
+                  </div>
+                  {notifications.length > 0 && (
+                      <div className="p-3 border-t border-slate-100">
+                          <button 
+                              onClick={() => setNotifications([])}
+                              className="w-full text-sm font-bold text-primary-orange hover:underline"
+                          >
+                              Tout marquer comme lu
+                          </button>
+                      </div>
+                  )}
               </div>
           </div>
       )}
