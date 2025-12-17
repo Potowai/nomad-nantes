@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { ActivitiesView } from './ActivitiesView';
 import { Activity } from '../types';
-import { searchPlaces, PlaceResult } from '../services/geminiService';
+import { searchPlaces, PlaceResult, isAIEnabled } from '../services/geminiService';
 
 interface MapHomeViewProps {
   onSuggestClick: () => void;
@@ -297,7 +297,7 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
   // Debounced search effect for Create Event
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if (newEvent.location.length > 2 && showSuggestions) {
+      if (newEvent.location.length > 2 && showSuggestions && isAIEnabled) {
         setIsSearchingPlace(true);
         const results = await searchPlaces(newEvent.location);
         setPlaceSuggestions(results);
@@ -454,12 +454,14 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
             )}
         </div>
 
-        <button 
-            onClick={onSuggestClick}
-            className="bg-white px-4 py-2.5 rounded-full shadow-lg border border-slate-100 flex items-center gap-2 text-text-main font-bold text-sm animate-bounce hover:bg-gray-50"
-        >
-            Suggérer ✨
-        </button>
+        {isAIEnabled && (
+            <button 
+                onClick={onSuggestClick}
+                className="bg-white px-4 py-2.5 rounded-full shadow-lg border border-slate-100 flex items-center gap-2 text-text-main font-bold text-sm animate-bounce hover:bg-gray-50"
+            >
+                Suggérer ✨
+            </button>
+        )}
       </div>
 
       <div className={`absolute top-24 right-4 z-40 ${isListView ? 'hidden' : 'block'}`}>
@@ -523,12 +525,14 @@ export const MapHomeView: React.FC<MapHomeViewProps> = ({
                                   onFocus={() => setShowSuggestions(true)}
                                   className="w-full p-3 bg-neutral-grey rounded-xl outline-none focus:ring-2 focus:ring-primary-orange pr-10"
                               />
-                              <div className="absolute right-3 top-3 text-gray-400">
-                                  {isSearchingPlace ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-                              </div>
+                              {isAIEnabled && (
+                                <div className="absolute right-3 top-3 text-gray-400">
+                                    {isSearchingPlace ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                                </div>
+                              )}
                           </div>
                           {/* Suggestions Dropdown */}
-                          {showSuggestions && placeSuggestions.length > 0 && (
+                          {showSuggestions && placeSuggestions.length > 0 && isAIEnabled && (
                               <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden max-h-48 overflow-y-auto">
                                   {placeSuggestions.map((place, idx) => (
                                       <div 

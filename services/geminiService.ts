@@ -1,8 +1,19 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Recommendation } from '../types';
 
-// Initialize the API client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safely check for API key
+const apiKey = process.env.API_KEY;
+export const isAIEnabled = typeof apiKey === 'string' && apiKey.length > 0;
+
+// Initialize the API client only if key exists
+let ai: GoogleGenAI | null = null;
+if (isAIEnabled) {
+  try {
+    ai = new GoogleGenAI({ apiKey: apiKey! });
+  } catch (error) {
+    console.error("Failed to initialize GoogleGenAI client:", error);
+  }
+}
 
 export interface PlaceResult {
   name: string;
@@ -11,6 +22,8 @@ export interface PlaceResult {
 }
 
 export const searchPlaces = async (query: string): Promise<PlaceResult[]> => {
+  if (!ai) return [];
+
   try {
     // Using Google Maps tool for real data
     const prompt = `
@@ -65,6 +78,8 @@ export const getAIRecommendations = async (
   city: string,
   interests: string[]
 ): Promise<Recommendation[]> => {
+  if (!ai) return [];
+
   try {
     const prompt = `
       Je suis un voyageur solo / digital nomad à ${city}.
